@@ -162,6 +162,10 @@
     <Compile Include="JdeScanRibbon.Designer.cs">
       <DependentUpon>JdeScanRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Entity.cs" />
+    <Compile Include="Models\Keeper.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UsersKeeper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -187,6 +191,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Static\Secrets.cs" />
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -200,6 +205,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
