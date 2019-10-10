@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,9 @@ namespace JdeScanExcelAddIn.Models
         [Browsable(false)]
         public string TenantName { get; set; }
         [Browsable(false)]
-        public string AddedItem { get; set; }
+        public int AddedId { get; set; }
+
+        
 
     }
 }

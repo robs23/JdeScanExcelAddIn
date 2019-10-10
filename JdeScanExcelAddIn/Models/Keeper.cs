@@ -13,13 +13,13 @@ namespace JdeScanExcelAddIn.Models
     {
         public SqlConnection conn = new SqlConnection(Static.Secrets.ConnectionString);
         public List<T> Items { get; set; } 
-        protected abstract string ObjectName { get;}
-        protected abstract string PluralizedObjectName { get;}
 
         public Keeper()
         {
             Items = new List<T>();
         }
+
+        
 
     }
 }

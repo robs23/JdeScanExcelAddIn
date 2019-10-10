@@ -162,6 +162,8 @@
     <Compile Include="JdeScanRibbon.Designer.cs">
       <DependentUpon>JdeScanRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\Action.cs" />
+    <Compile Include="Models\ActionKeepr.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\Keeper.cs" />
     <Compile Include="Models\User.cs" />

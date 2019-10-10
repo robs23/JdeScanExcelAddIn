@@ -76,7 +76,7 @@ namespace JdeScanExcelAddIn
                         var nms = Regex.Split(names, ",");
                         foreach(string n in nms)
                         {
-                            Users.Add(new User { FullName = n });
+                            Users.Add(new User { FullName = n.Trim() });
                         }
                     }
                 }
