@@ -8,41 +8,36 @@ using System.Windows.Forms;
 
 namespace JdeScanExcelAddIn.Models
 {
-
-    public abstract class Keeper<T> 
+    public static class Settings
     {
-        private SqlConnection _conn { get; set; }
-        public SqlConnection conn
+        public static int? Week { get; set; }
+        public static int? Year { get; set; }
+        public static DateTime? StartDate { get; set; }
+        public static DateTime? EndDate { get; set; }
+
+        private static SqlConnection _conn { get; set; }
+        public static SqlConnection conn
         {
             get
             {
-                if(_conn == null)
+                if (_conn == null)
                 {
-                   _conn = new SqlConnection(Static.Secrets.ConnectionString);
+                    _conn = new SqlConnection(Static.Secrets.ConnectionString);
                 }
-                if(_conn.State == System.Data.ConnectionState.Closed || _conn.State == System.Data.ConnectionState.Closed)
+                if (_conn.State == System.Data.ConnectionState.Closed || _conn.State == System.Data.ConnectionState.Closed)
                 {
                     try
                     {
                         _conn.Open();
-                    }catch(Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         MessageBox.Show("Nie udało się nawiązać połączenia z bazą danych.. " + ex.Message);
                     }
-                    
+
                 }
                 return _conn;
             }
         }
-
-        public List<T> Items { get; set; } 
-
-        public Keeper()
-        {
-            Items = new List<T>();
-        }
-
-        
-
     }
 }

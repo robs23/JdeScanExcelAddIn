@@ -156,6 +156,12 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="frmPeriod.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmPeriod.Designer.cs">
+      <DependentUpon>frmPeriod.cs</DependentUpon>
+    </Compile>
     <Compile Include="JdeScanRibbon.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -163,14 +169,19 @@
       <DependentUpon>JdeScanRibbon.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Action.cs" />
-    <Compile Include="Models\ActionKeepr.cs" />
+    <Compile Include="Models\ActionKeeper.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\Keeper.cs" />
+    <Compile Include="Models\Record.cs" />
+    <Compile Include="Static\Settings.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UsersKeeper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <EmbeddedResource Include="frmPeriod.resx">
+      <DependentUpon>frmPeriod.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="JdeScanRibbon.resx">
       <DependentUpon>JdeScanRibbon.cs</DependentUpon>
     </EmbeddedResource>
@@ -193,6 +204,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Static\Functions.cs" />
     <Compile Include="Static\Secrets.cs" />
     <Compile Include="ThisAddIn.cs">
       <SubType>Code</SubType>

@@ -13,6 +13,9 @@ namespace JdeScanExcelAddIn
     public partial class JdeScanRibbon
     {
         List<User> Users = new List<User>();
+        List<string> mUsers = new List<string>();
+
+
         private void JdeScanRibbon_Load(object sender, RibbonUIEventArgs e)
         {
 
@@ -20,6 +23,12 @@ namespace JdeScanExcelAddIn
 
         private void btnJdeScanExport_Click(object sender, RibbonControlEventArgs e)
         {
+            frmPeriod FrmPeriod = new frmPeriod();
+            FrmPeriod.ShowDialog();
+            UsersKeeper uKeeper = new UsersKeeper();
+            
+            ActionKeeper aKeeper = new ActionKeeper();
+            
             Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
             Worksheet sht = wb.ActiveSheet;
             Range UsedRange = sht.UsedRange;
@@ -30,7 +39,7 @@ namespace JdeScanExcelAddIn
             int cPlace = 0;
             int cType = 0;
 
-            for (int i = 1; i < UsedRange.Columns.Count; i++)
+            for (int i = 1; i <= UsedRange.Columns.Count; i++)
             {
                 if (cUser!=0 && cTime!=0 && cAction!=0 && cPlace!=0 && cType != 0)
                 {
@@ -39,22 +48,25 @@ namespace JdeScanExcelAddIn
                 }
                 else
                 {
-                    if(UsedRange.Cells[1,i]== "Nazwa maszyny")
+                    
+                    string aCell = ((Range)UsedRange.Cells[1, i]).Value;
+                    
+                    if (aCell== "Nazwa maszyny")
                     {
                         cPlace = i;
-                    }else if(UsedRange.Cells[1,i]== "Czynność")
+                    }else if(aCell == "Czynność")
                     {
                         cAction = i;
                     }
-                    else if (UsedRange.Cells[1, i] == "S/R")
+                    else if (aCell == "S/R")
                     {
                         cType = i;
                     }
-                    else if (UsedRange.Cells[1, i] == "czas")
+                    else if (aCell == "czas")
                     {
                         cTime = i;
                     }
-                    else if (UsedRange.Cells[1, i] == "Nazwisko")
+                    else if (aCell == "Nazwisko")
                     {
                         cUser = i;
                     }
@@ -68,17 +80,79 @@ namespace JdeScanExcelAddIn
             }
             else
             {
+                uKeeper.Reload();
+                aKeeper.Reload();
+
                 foreach (Range Row in UsedRange.Rows)
                 {
-                    string names = UsedRange[Row.Row, cUser];
-                    if (!string.IsNullOrEmpty(names))
+                    //Go and add missing actions to db
+                    string act = ((Range)UsedRange[Row.Row, cAction]).Value;
+                    if (!string.IsNullOrEmpty(act) && act != "Czynność")
                     {
-                        var nms = Regex.Split(names, ",");
-                        foreach(string n in nms)
+                        if (!aKeeper.Items.Where(i => i.Name == act).Any())
                         {
-                            Users.Add(new User { FullName = n.Trim() });
+                            //it doesn't exist, let's add it
+                            Models.Action a = new Models.Action();
+                            a.Name = act;
+                            int min = 0;
+                            bool passed = int.TryParse(((Range)UsedRange[Row.Row, cTime]).Value, out min);
+                            a.GivenTime = min;
+                            a.Type = ((string)((Range)UsedRange[Row.Row, cTime]).Value).Trim();
+                            if (a.Add())
+                            {
+                                aKeeper.Items.Add(a);
+                            }
                         }
                     }
+                }
+
+                foreach (Range Row in UsedRange.Rows)
+                {
+                    //get Users
+                    string names = ((Range)UsedRange[Row.Row, cUser]).Value;
+                    if (!string.IsNullOrEmpty(names) && names!="Nazwisko")
+                    {
+                        var nms = Regex.Split(names, ",");
+                        if (nms.Count() == 1)
+                        {
+                            //Only 1 user? Or maybe those bustards are divided with "/" ?!
+                            nms = Regex.Split(names, "/");
+                            if(nms.Count() == 1)
+                            {
+                                //Only 1 user? maybe backslash ("\") ?!
+                                nms = Regex.Split(names, "\\");
+                            }
+                        }
+                        foreach(string n in nms)
+                        {
+                            if(uKeeper.Items.Where(i=>i.FullName == n.Trim()).Any())
+                            {
+                                Users.Add(new User { UserId = uKeeper.Items.Where(i=>i.FullName ==n.Trim()).FirstOrDefault().UserId, FullName = n.Trim() });
+                            }
+                            else
+                            {
+                                if (!mUsers.Where(i => i == n.Trim()).Any())
+                                {
+                                    mUsers.Add(n.Trim());
+                                }
+                                
+                            }
+                            
+                        }
+                    }
+
+                    //get Actions
+                    string act = ((Range)UsedRange[Row.Row, cAction]).Value;
+                    if(!string.IsNullOrEmpty(act) && act != "Czynność")
+                    {
+
+                    }
+
+                }
+
+                if (mUsers.Any())
+                {
+                    MessageBox.Show($"Na liście użytkowników programu brakuje {mUsers.Count} pozycj, który znajdują się w pliku w kolumnie Nazwisko. Brakujące pozycje: {string.Join(", ", mUsers)}. Przerywam export.");
                 }
             }
 

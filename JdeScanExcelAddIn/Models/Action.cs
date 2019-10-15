@@ -19,14 +19,15 @@ namespace JdeScanExcelAddIn.Models
             get => ActionId;
         }
         public string Name { get; set; }
-        public int? GivenTime { get; set; }
+        public Nullable<int> GivenTime { get; set; }
         public string Type { get; set; }
 
-        public bool Add(SqlConnection connection)
+        public bool Add()
         {
             string iSql = @"INSERT INTO JDE_Actions (Name, CreatedBy, CreatedOn, TenantId, GivenTime, Type) 
                             VALUES(@Name, @CreatedBy, @CreatedOn, @TenantId, @GivenTime, @Type)";
-            using (SqlCommand command = new SqlCommand(iSql,connection))
+
+            using (SqlCommand command = new SqlCommand(iSql, Settings.conn))
             {
                 command.Parameters.AddWithValue("@Name", Name);
                 command.Parameters.AddWithValue("@GivenTime", GivenTime);
@@ -35,8 +36,6 @@ namespace JdeScanExcelAddIn.Models
                 command.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
                 command.Parameters.AddWithValue("@TenantId", 1);
 
-                if(connection.State != System.Data.ConnectionState.Open)
-                    connection.Open();
 
                 int result = command.ExecuteNonQuery();
                 if (result < 0)

@@ -4,16 +4,22 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace JdeScanExcelAddIn.Models
 {
-    public class UsersKeeper : Keeper<User>
+    public class ActionKeeper : Keeper<Action>
     {
+        public void SaveAll()
+        {
+            foreach (Action item in Items)
+            {
+                item.Add(conn);
+            }
+        }
 
         public void Reload()
         {
-            string sql = "SELECT UserId, Name, Surname FROM JDE_Users";
+            string sql = "SELECT ActionId, Name FROM JDE_Actions";
 
             SqlCommand sqlComand;
             sqlComand = new SqlCommand(sql, conn);
@@ -21,8 +27,8 @@ namespace JdeScanExcelAddIn.Models
             {
                 while (reader.Read())
                 {
-                    User u = new User { UserId = reader.GetInt32(reader.GetOrdinal("UserId")), Name = reader["Name"].ToString().Trim(), Surname = reader["Surname"].ToString().Trim() };
-                    Items.Add(u);
+                    Action a = new Action { ActionId = reader.GetInt32(reader.GetOrdinal("ActionId")), Name = reader["Name"].ToString().Trim()};
+                    Items.Add(a);
                 }
             }
         }

@@ -36,7 +36,11 @@ namespace JdeScanExcelAddIn.Models
             set
             {
                 string[] names = Regex.Split(value, " ");
-                if(names.Count() > 1)
+                if (names.Count() > 2)
+                {
+                    Name = names[0];
+                    Surname = string.Join(" ", names.Skip(1));
+                }else if(names.Count() == 2)
                 {
                     Name = names[0];
                     Surname = names[1];
