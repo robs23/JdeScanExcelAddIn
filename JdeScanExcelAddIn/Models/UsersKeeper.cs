@@ -16,7 +16,7 @@ namespace JdeScanExcelAddIn.Models
             string sql = "SELECT UserId, Name, Surname FROM JDE_Users";
 
             SqlCommand sqlComand;
-            sqlComand = new SqlCommand(sql, conn);
+            sqlComand = new SqlCommand(sql, Settings.conn);
             using (SqlDataReader reader = sqlComand.ExecuteReader())
             {
                 while (reader.Read())

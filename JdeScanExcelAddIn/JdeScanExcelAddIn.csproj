@@ -172,7 +172,11 @@
     <Compile Include="Models\ActionKeeper.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\Keeper.cs" />
+    <Compile Include="Models\Place.cs" />
+    <Compile Include="Models\PlaceKeeper.cs" />
     <Compile Include="Models\Record.cs" />
+    <Compile Include="Models\RecordKeeper.cs" />
+    <Compile Include="Static\Extensions.cs" />
     <Compile Include="Static\Settings.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UsersKeeper.cs" />

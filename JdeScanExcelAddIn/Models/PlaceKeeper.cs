@@ -7,19 +7,11 @@ using System.Threading.Tasks;
 
 namespace JdeScanExcelAddIn.Models
 {
-    public class ActionKeeper : Keeper<Action>
+    public class PlaceKeeper : Keeper<Place>
     {
-        public void SaveAll()
-        {
-            foreach (Action item in Items)
-            {
-                item.Add();
-            }
-        }
-
         public void Reload()
         {
-            string sql = "SELECT ActionId, Name FROM JDE_Actions";
+            string sql = "SELECT PlaceId, Name FROM JDE_Places";
 
             SqlCommand sqlComand;
             sqlComand = new SqlCommand(sql, Settings.conn);
@@ -27,8 +19,8 @@ namespace JdeScanExcelAddIn.Models
             {
                 while (reader.Read())
                 {
-                    Action a = new Action { ActionId = reader.GetInt32(reader.GetOrdinal("ActionId")), Name = reader["Name"].ToString().Trim()};
-                    Items.Add(a);
+                    Place p = new Place { PlaceId = reader.GetInt32(reader.GetOrdinal("PlaceId")), Name = reader["Name"].ToString().Trim()};
+                    Items.Add(p);
                 }
             }
         }
