@@ -63,5 +63,19 @@ namespace JdeScanExcelAddIn
         {
             Calculate();
         }
+
+        private void btnOK_Click(object sender, EventArgs e)
+        {
+            if(week>0 && year > 0)
+            {
+                //return the values and close
+                this.DialogResult = DialogResult.OK;
+            }
+            else
+            {
+                MessageBox.Show("Nieprawidłowy numer tygodnia lub rok. Popraw dane i kliknij OK", "Błąd danych");
+            }
+        }
+
     }
 }

@@ -185,7 +185,7 @@ namespace JdeScanExcelAddIn
                         }
 
                         record.Action = a;
-
+                        rKeeper.Items.Add(record);
                     }
 
                     if (!record.IsValid)
@@ -197,7 +197,7 @@ namespace JdeScanExcelAddIn
                     {
                         Row.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
                     }
-                    rKeeper.Items.Add(record);
+                    
                 }
 
 
@@ -225,10 +225,60 @@ namespace JdeScanExcelAddIn
                 {
                     //get week number
                     frmPeriod FrmPeriod = new frmPeriod();
-                    FrmPeriod.ShowDialog();
+                    DialogResult res = FrmPeriod.ShowDialog();
+                    if(res == DialogResult.OK)
+                    {
+                        //All set, let's import the motherfucker
+                        int w = (int)FrmPeriod.week;
+                        int y = (int)FrmPeriod.year;
+                        DateTime startDate = (DateTime)FrmPeriod.startDate;
+                        Globals.ThisAddIn.Application.StatusBar = $"Importuje dane dla tygodnia {w}/{y}..";
+                        Import(rKeeper);
+                        //MessageBox.Show($"Importuje dane dla tygodnia {w}/{y}.", "Przygotowany do importu");
+                    }
+                    else
+                    {
+                        //The user aborted the form and we don't have week/year to upload to
+                        MessageBox.Show("Akcja przerwana przez użytkownika. Żadne dane nie zostały zaimportowane..", "Import przerwany");
+                    }
+
                 }
             }
 
+        }
+
+        private bool Import(RecordKeeper rKeeper)
+        {
+            bool status = false;
+            int rCount = 0;
+            List<string> failedActions = new List<string>();
+
+            //add missing actions first
+            try
+            {
+                foreach (Record r in rKeeper.Items.Where(i => i.Action.ActionId == 0))
+                {
+                    if (r.Action.Add())
+                    {
+                        rCount++;
+                    }
+                    else
+                    {
+                        //
+                        failedActions.Add(r.Action.Name);
+                    }
+                }
+            }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
+
+            //add missing PlaceActions
+
+            int importedPlaceActions = rKeeper.ImportPlaceActions(); 
+
+            return status;
         }
     }
 }
