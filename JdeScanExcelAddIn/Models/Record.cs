@@ -25,7 +25,7 @@ namespace JdeScanExcelAddIn.Models
         public List<User> Users { get; set; }
         public Place Place { get; set; }
         public Action Action { get; set; }
-
+        public Process Process { get; set; }
 
         public Record()
         {

@@ -233,7 +233,7 @@ namespace JdeScanExcelAddIn
                         int y = (int)FrmPeriod.year;
                         DateTime startDate = (DateTime)FrmPeriod.startDate;
                         Globals.ThisAddIn.Application.StatusBar = $"Importuje dane dla tygodnia {w}/{y}..";
-                        Import(rKeeper);
+                        int added = rKeeper.ImportAll();
                         //MessageBox.Show($"Importuje dane dla tygodnia {w}/{y}.", "Przygotowany do importu");
                     }
                     else
@@ -245,40 +245,6 @@ namespace JdeScanExcelAddIn
                 }
             }
 
-        }
-
-        private bool Import(RecordKeeper rKeeper)
-        {
-            bool status = false;
-            int rCount = 0;
-            List<string> failedActions = new List<string>();
-
-            //add missing actions first
-            try
-            {
-                foreach (Record r in rKeeper.Items.Where(i => i.Action.ActionId == 0))
-                {
-                    if (r.Action.Add())
-                    {
-                        rCount++;
-                    }
-                    else
-                    {
-                        //
-                        failedActions.Add(r.Action.Name);
-                    }
-                }
-            }catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            
-
-            //add missing PlaceActions
-
-            int importedPlaceActions = rKeeper.ImportPlaceActions(); 
-
-            return status;
         }
     }
 }
