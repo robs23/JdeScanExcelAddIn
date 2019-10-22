@@ -39,5 +39,7 @@ namespace JdeScanExcelAddIn.Models
                 return _conn;
             }
         }
+
+        public static User CurrentUser { get; set; }
     }
 }

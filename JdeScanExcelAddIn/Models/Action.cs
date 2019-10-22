@@ -34,7 +34,7 @@ namespace JdeScanExcelAddIn.Models
                 command.Parameters.AddWithValue("@Name", Name);
                 command.Parameters.AddWithNullableValue("@GivenTime", GivenTime);
                 command.Parameters.AddWithNullableValue("@Type", Type);
-                command.Parameters.AddWithValue("@CreatedBy", 1);
+                command.Parameters.AddWithValue("@CreatedBy", Settings.CurrentUser.UserId);
                 command.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
                 command.Parameters.AddWithValue("@TenantId", 1);
 

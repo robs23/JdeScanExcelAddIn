@@ -231,10 +231,21 @@ namespace JdeScanExcelAddIn
                         //All set, let's import the motherfucker
                         int w = (int)FrmPeriod.week;
                         int y = (int)FrmPeriod.year;
-                        DateTime startDate = (DateTime)FrmPeriod.startDate;
-                        Globals.ThisAddIn.Application.StatusBar = $"Importuje dane dla tygodnia {w}/{y}..";
-                        int added = rKeeper.ImportAll();
-                        //MessageBox.Show($"Importuje dane dla tygodnia {w}/{y}.", "Przygotowany do importu");
+                        rKeeper.PlannedStart = (DateTime)FrmPeriod.startDate;
+                        rKeeper.PlannedFinish = ((DateTime)FrmPeriod.startDate).AddHours(160);
+                        frmLogin FrmLogin = new frmLogin(uKeeper);
+                        DialogResult result = FrmLogin.ShowDialog();
+                        if(result == DialogResult.OK)
+                        {
+                            Globals.ThisAddIn.Application.StatusBar = $"Importuje dane dla tygodnia {w}/{y}..";
+                            int added = rKeeper.ImportAll();
+                            Globals.ThisAddIn.Application.StatusBar = "";
+                        }
+                        else
+                        {
+                            //The user aborted the form and we don't have UserId of loagged user to upload to
+                            MessageBox.Show("Akcja przerwana przez użytkownika. Żadne dane nie zostały zaimportowane..", "Import przerwany");
+                        }
                     }
                     else
                     {

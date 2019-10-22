@@ -13,7 +13,7 @@ namespace JdeScanExcelAddIn.Models
 
         public void Reload()
         {
-            string sql = "SELECT UserId, Name, Surname FROM JDE_Users";
+            string sql = "SELECT UserId, Name, Surname, Password FROM JDE_Users";
 
             SqlCommand sqlComand;
             sqlComand = new SqlCommand(sql, Settings.conn);
@@ -21,7 +21,7 @@ namespace JdeScanExcelAddIn.Models
             {
                 while (reader.Read())
                 {
-                    User u = new User { UserId = reader.GetInt32(reader.GetOrdinal("UserId")), Name = reader["Name"].ToString().Trim(), Surname = reader["Surname"].ToString().Trim() };
+                    User u = new User { UserId = reader.GetInt32(reader.GetOrdinal("UserId")), Name = reader["Name"].ToString().Trim(), Surname = reader["Surname"].ToString().Trim(), Password = reader["Password"].ToString() };
                     Items.Add(u);
                 }
             }

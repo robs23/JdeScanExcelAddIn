@@ -32,13 +32,13 @@ namespace JdeScanExcelAddIn.Models
             {
                 command.Parameters.AddWithValue("@ActionTypeId", 2);
                 command.Parameters.AddWithValue("@PlaceId", Place.PlaceId);
-                command.Parameters.AddWithValue("@CreatedBy", 40);
+                command.Parameters.AddWithValue("@CreatedBy", Settings.CurrentUser.UserId);
                 command.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
                 command.Parameters.AddWithValue("@TenantId",1);
                 command.Parameters.AddWithValue("@PlannedStart", PlannedStart);
                 command.Parameters.AddWithValue("@PlannedFinish", PlannedFinish);
                 command.Parameters.AddWithValue("@LastStatus", 1);
-                command.Parameters.AddWithValue("@LastStatusBy", 40);
+                command.Parameters.AddWithValue("@LastStatusBy", Settings.CurrentUser.UserId);
                 command.Parameters.AddWithValue("@LastStatusOn", DateTime.Now);
                 command.Parameters.AddWithValue("@IsActive", false);
                 command.Parameters.AddWithValue("@IsFrozen", false);
