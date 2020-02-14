@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JdeScanExcelAddIn.Static;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace JdeScanExcelAddIn.Models
     {
         public void Reload()
         {
-            string sql = "SELECT PlaceId, Name FROM JDE_Places";
+            string sql = "SELECT PlaceId, Name, IsArchived FROM JDE_Places";
 
             SqlCommand sqlComand;
             sqlComand = new SqlCommand(sql, Settings.conn);
@@ -20,6 +21,7 @@ namespace JdeScanExcelAddIn.Models
                 while (reader.Read())
                 {
                     Place p = new Place { PlaceId = reader.GetInt32(reader.GetOrdinal("PlaceId")), Name = reader["Name"].ToString().Trim()};
+                    p.IsArchived = reader.GetValueOrDefault<bool>("IsArchived");
                     Items.Add(p);
                 }
             }

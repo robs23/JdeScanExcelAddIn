@@ -14,6 +14,8 @@ namespace JdeScanExcelAddIn
     {
         List<string> mUsers = new List<string>();
         List<string> mPlaces = new List<string>();
+        List<string> aUsers = new List<string>();
+        List<string> aPlaces = new List<string>();
 
         private void JdeScanRibbon_Load(object sender, RibbonUIEventArgs e)
         {
@@ -27,6 +29,11 @@ namespace JdeScanExcelAddIn
             PlaceKeeper pKeeper = new PlaceKeeper();
             ActionKeeper aKeeper = new ActionKeeper();
             RecordKeeper rKeeper = new RecordKeeper();
+
+            mPlaces.Clear();
+            aPlaces.Clear();
+            mUsers.Clear();
+            aUsers.Clear();
             
             Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
             Worksheet sht = wb.ActiveSheet;
@@ -125,8 +132,17 @@ namespace JdeScanExcelAddIn
                             {
                                 if (uKeeper.Items.Where(i => i.FullName == n.Trim()).Any())
                                 {
-                                    //Keep User with id in record object
-                                    record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim()).FirstOrDefault().UserId, FullName = n.Trim() });
+                                    if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived==true).Any())
+                                    {
+                                        //add it to archived list
+                                        
+                                        aUsers.Add(n.Trim());
+                                    }
+                                    else
+                                    {
+                                        //Keep User with id in record object
+                                        record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim()).FirstOrDefault().UserId, FullName = n.Trim() });
+                                    }     
                                 }
                                 else
                                 {
@@ -135,15 +151,21 @@ namespace JdeScanExcelAddIn
                                         //add it to missing list
                                         mUsers.Add(n.Trim());
                                     }
-
                                 }
-
                             }
 
                             if (pKeeper.Items.Where(i => i.Name.Trim() == pl).Any())
                             {
                                 //Keep place with id in record object
-                                record.Place = pKeeper.Items.Where(i => i.Name.Trim() == pl).FirstOrDefault();
+                                if(pKeeper.Items.Where(i=>i.Name.Trim() == pl && i.IsArchived == true).Any())
+                                {
+                                    //add it to archived list
+                                    aPlaces.Add(pl);
+                                }
+                                else
+                                {
+                                    record.Place = pKeeper.Items.Where(i => i.Name.Trim() == pl).FirstOrDefault();
+                                }
                             }
                             else
                             {
@@ -219,6 +241,15 @@ namespace JdeScanExcelAddIn
                             mess += Environment.NewLine + Environment.NewLine + "Brakujący użytkownicy: " + string.Join(", ", mUsers);
                         if (mPlaces.Any())
                             mess += Environment.NewLine + Environment.NewLine + "Brakujące maszyny: " + string.Join(", ", mPlaces);
+                        if (aPlaces.Any() || aUsers.Any())
+                        {
+                            mess += Environment.NewLine + Environment.NewLine + "Na liście znajdują się zarchiwizowane maszyny lub użytkownicy.";
+                            if(aPlaces.Any())
+                                mess += Environment.NewLine + "Zarchiwizowane maszyny: " + string.Join(", ", aPlaces.Distinct());
+                            if (aUsers.Any())
+                                mess += Environment.NewLine + "Zarchiwizowani użytkownicy: " + string.Join(", ", aUsers.Distinct());
+                        }
+                            
                         mess += Environment.NewLine + Environment.NewLine + "Chcesz importować teraz poprawne wiersze (ZIELONE)?";
                         DialogResult res = MessageBox.Show(mess, "Niepoprawne dane", MessageBoxButtons.YesNo);
                         if (res == DialogResult.Yes)

@@ -16,5 +16,11 @@ namespace JdeScanExcelAddIn.Static
             else
                 return collection.AddWithValue(parameterName, value);
         }
+
+        public static T GetValueOrDefault<T>(this SqlDataReader dataReader, string columnName)
+        {
+            //checks if cell contain null and if so, converts value to null
+            return !dataReader.IsDBNull(dataReader.GetOrdinal(columnName)) ? (T)dataReader.GetValue(dataReader.GetOrdinal(columnName)) : default(T);
+        }
     }
 }

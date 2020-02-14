@@ -258,6 +258,13 @@ namespace JdeScanExcelAddIn.Models
                         {
                             counter++;
                             cStr += $"({r.Process.ProcessId},{u.UserId}),";
+                            if (counter % 1000 == 0)
+                            {
+                                //we've just hit 1000 items
+
+                                rStr.Add(cStr);
+                                cStr = "";
+                            }
                         }
                         
                     }

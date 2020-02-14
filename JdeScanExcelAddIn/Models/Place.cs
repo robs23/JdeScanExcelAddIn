@@ -17,5 +17,7 @@ namespace JdeScanExcelAddIn.Models
             get => PlaceId;
         }
         public string Name { get; set; }
+
+        public bool? IsArchived { get; set; }
     }
 }

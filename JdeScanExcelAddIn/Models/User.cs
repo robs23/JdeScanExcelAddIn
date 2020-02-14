@@ -60,5 +60,7 @@ namespace JdeScanExcelAddIn.Models
         [DisplayName("Ostatnie logowanie")]
         public DateTime? LastLoggedOn { get; set; }
 
+        public bool? IsArchived { get; set; }
+
     }
 }
