@@ -132,16 +132,16 @@ namespace JdeScanExcelAddIn
                             {
                                 if (uKeeper.Items.Where(i => i.FullName == n.Trim()).Any())
                                 {
-                                    if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived==true).Any())
+                                    if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived==true).Any() && !uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).Any())
                                     {
+                                        //check if there is archived user like that but also check if there is active user like this
                                         //add it to archived list
-                                        
                                         aUsers.Add(n.Trim());
                                     }
                                     else
                                     {
                                         //Keep User with id in record object
-                                        record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim()).FirstOrDefault().UserId, FullName = n.Trim() });
+                                        record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived!=true).FirstOrDefault().UserId, FullName = n.Trim() });
                                     }     
                                 }
                                 else
@@ -157,14 +157,15 @@ namespace JdeScanExcelAddIn
                             if (pKeeper.Items.Where(i => i.Name.Trim() == pl).Any())
                             {
                                 //Keep place with id in record object
-                                if(pKeeper.Items.Where(i=>i.Name.Trim() == pl && i.IsArchived == true).Any())
+                                if(pKeeper.Items.Where(i=>i.Name.Trim() == pl && i.IsArchived == true).Any() && !pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived != true).Any())
                                 {
+                                    //check if there is archived place like that but also check if there is active place like this
                                     //add it to archived list
                                     aPlaces.Add(pl);
                                 }
                                 else
                                 {
-                                    record.Place = pKeeper.Items.Where(i => i.Name.Trim() == pl).FirstOrDefault();
+                                    record.Place = pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived!=true).FirstOrDefault();
                                 }
                             }
                             else
