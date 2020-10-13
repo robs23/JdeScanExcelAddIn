@@ -30,13 +30,13 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Inne\Programowanie\JdeScanExcelAddIn\JdeScanExcelAddIn\Publish\</PublishUrl>
+    <PublishUrl>K:\Common\JDE Scan\Excel Add-in\Releases\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.1.1.1</ApplicationVersion>
+    <ApplicationVersion>1.1.2.1</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>7</UpdateInterval>
+    <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
     <ProductName>JdeScanExcelAddIn</ProductName>
     <PublisherName />

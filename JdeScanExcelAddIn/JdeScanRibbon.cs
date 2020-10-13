@@ -19,7 +19,7 @@ namespace JdeScanExcelAddIn
 
         private void JdeScanRibbon_Load(object sender, RibbonUIEventArgs e)
         {
-
+            
         }
 
         private void btnJdeScanExport_Click(object sender, RibbonControlEventArgs e)
@@ -298,6 +298,26 @@ namespace JdeScanExcelAddIn
             {
                 MessageBox.Show($"Wystąpił błąd podczas analizowania pliku: {ex.Message}", "Import przerwany");
             }
+        }
+
+        private void btnPlacePriority_Click(object sender, RibbonControlEventArgs e)
+        {
+            PlaceKeeper pKeeper = new PlaceKeeper();
+            Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
+            Worksheet sht = null;
+            try
+            {
+                sht = wb.Sheets["Lista maszyn"];
+                pKeeper.Reload();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Nie znaleziono akrusza \"Lista maszyn\". Nie zaktualizowano żadnej maszyny.. ");
+            }
+            
+            
+
+
         }
     }
 }

@@ -38,6 +38,7 @@
             this.tabJdeScan = this.Factory.CreateRibbonTab();
             this.grpJdeScan = this.Factory.CreateRibbonGroup();
             this.btnJdeScanExport = this.Factory.CreateRibbonButton();
+            this.btnPlacePriority = this.Factory.CreateRibbonButton();
             this.tabJdeScan.SuspendLayout();
             this.grpJdeScan.SuspendLayout();
             this.SuspendLayout();
@@ -52,6 +53,7 @@
             // grpJdeScan
             // 
             this.grpJdeScan.Items.Add(this.btnJdeScanExport);
+            this.grpJdeScan.Items.Add(this.btnPlacePriority);
             this.grpJdeScan.Label = "JDE Scan";
             this.grpJdeScan.Name = "grpJdeScan";
             // 
@@ -63,6 +65,15 @@
             this.btnJdeScanExport.Name = "btnJdeScanExport";
             this.btnJdeScanExport.ShowImage = true;
             this.btnJdeScanExport.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnJdeScanExport_Click);
+            // 
+            // btnPlacePriority
+            // 
+            this.btnPlacePriority.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.btnPlacePriority.Image = ((System.Drawing.Image)(resources.GetObject("btnPlacePriority.Image")));
+            this.btnPlacePriority.Label = "Aktualizuj ABC";
+            this.btnPlacePriority.Name = "btnPlacePriority";
+            this.btnPlacePriority.ShowImage = true;
+            this.btnPlacePriority.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.btnPlacePriority_Click);
             // 
             // JdeScanRibbon
             // 
@@ -83,6 +94,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tabJdeScan;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup grpJdeScan;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton btnJdeScanExport;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton btnPlacePriority;
     }
 
     partial class ThisRibbonCollection
