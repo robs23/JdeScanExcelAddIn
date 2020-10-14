@@ -33,30 +33,37 @@ namespace JdeScanExcelAddIn.Models
         {
             List<Task<string>> UpdateTasks = new List<Task<string>>();
 
-            foreach(Place p in Items)
+            try
             {
-                UpdateTasks.Add(p.Edit());
-            }
-
-            string response = "";
-
-            IEnumerable<string> res = await Task.WhenAll<string>(UpdateTasks);
-            if (res.Any())
-            {
-                foreach (string r in res)
+                foreach (Place p in Items.Where(i => i.IsUpdated==true))
                 {
-                    if (!string.IsNullOrEmpty(r))
+                    UpdateTasks.Add(Task.Run(()=> p.Edit()));
+                }
+
+                string response = "";
+
+                IEnumerable<string> res = await Task.WhenAll<string>(UpdateTasks);
+                if (res.Any())
+                {
+                    foreach (string r in res)
                     {
-                        if(r != "OK")
+                        if (!string.IsNullOrEmpty(r))
                         {
-                            response += r;
+                            if (r != "OK")
+                            {
+                                response += r;
+                            }
                         }
                     }
-                }
-                if (string.IsNullOrWhiteSpace(response)) 
-                    response = "OK";
+                    if (string.IsNullOrWhiteSpace(response))
+                        response = "OK";
 
-                return response;
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
             return "Nie udało się zaktualizować danych żadnego zasobu..";
         }

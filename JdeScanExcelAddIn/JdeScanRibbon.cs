@@ -7,6 +7,7 @@ using Microsoft.Office.Tools.Ribbon;
 using Microsoft.Office.Interop.Excel;
 using JdeScanExcelAddIn.Models;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace JdeScanExcelAddIn
 {
@@ -300,24 +301,128 @@ namespace JdeScanExcelAddIn
             }
         }
 
-        private void btnPlacePriority_Click(object sender, RibbonControlEventArgs e)
+        private async void btnPlacePriority_Click(object sender, RibbonControlEventArgs e)
         {
+            DateTime start = DateTime.Now;
             PlaceKeeper pKeeper = new PlaceKeeper();
+            PlaceKeeper lKeeper = new PlaceKeeper();
+            pKeeper.Reload();
+            lKeeper = await GetRanking();
+            int num = 0;
+            foreach (Place p in pKeeper.Items)
+            {
+                if (lKeeper.Items.Where(i => i.Name.Trim() == p.Name.Trim()).Any())
+                {
+                    //if there's a match between file & db, update data from db
+                    p.Priority = lKeeper.Items.Where(i => i.Name.Trim() == p.Name.Trim()).FirstOrDefault().Priority;
+                    p.IsUpdated = true;
+                    num++;
+                }
+            }
+            
+            DialogResult res = MessageBox.Show($"Znaleziono {num} pasujących maszyn. Czy chcesz zaktualizować priorytet maszyny danymi z pliku?", "Potwierdź", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if(res == DialogResult.Yes)
+            {
+                await pKeeper.UpdatePriority();
+                int updated = pKeeper.Items.Count(i => i.IsUpdated == false);
+                if (updated > 0)
+                {
+                    DateTime end = DateTime.Now;
+                    MessageBox.Show($"Zaktualizowano {updated} maszyn w {(end-start).TotalSeconds} sekund!", "Powodzenie", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"Niezaktualizowano żadnej maszyny, ponieważ żadna z maszyn w pliku nie została odnaleziona w bazie. Możliwe, że trzeba będzie założyć brakujące maszyny..", "Brak nowych danych", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            
+        }
+
+        private async Task<PlaceKeeper> GetRanking()
+        {
             Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
             Worksheet sht = null;
+            PlaceKeeper lKeeper = new PlaceKeeper();
+            bool found = false;
+            int cPlace = 0;
+            int cPriority = 0;
+
             try
             {
-                sht = wb.Sheets["Lista maszyn"];
-                pKeeper.Reload();
+                try
+                {
+                    sht = wb.Sheets["Lista maszyn"];
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Nie znaleziono akrusza \"Lista maszyn\"..", "Niepowodzenie", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    throw;
+                }
+                Range UsedRange = sht.UsedRange;
+                for (int i = 1; i <= UsedRange.Columns.Count; i++)
+                {
+                    if (cPlace > 0 && cPriority > 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                    else
+                    {
+
+                        string aCell = ((Range)UsedRange.Cells[2, i]).Value;
+
+                        if (aCell == "Nazwa")
+                        {
+                            cPlace = i;
+                        }
+                        else if (aCell == "Ranking")
+                        {
+                            cPriority = i;
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    //Not all variables have been found
+                    MessageBox.Show("Nie udało się znaleźć wszystkich potrzebnych kolumn (Nazwa, Ranking). Upewnij się, że raport zawiera wszystkie kolumny z nagłówkami w pierwszym wierszu.", "Niepowodzenie", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    foreach (Range Row in UsedRange.Rows)
+                    {
+                        string pl = null;
+                        if (((Range)UsedRange[Row.Row, cPlace]).Value2 != null)
+                            pl = ((Range)UsedRange[Row.Row, cPlace]).Value.ToString().Trim();
+                        string pr = null;
+                        if (((Range)UsedRange[Row.Row, cPriority]).Value2 != null)
+                            pr = ((Range)UsedRange[Row.Row, cPriority]).Value.ToString().Trim();
+                        
+                        if(pl!=null && pr != null)
+                        {
+                            //only if both place & priority has value
+                            if(!lKeeper.Items.Where(i=>i.Name.Trim() == pl).Any())
+                            {
+                                //we don't have this place yet
+                                Place Place = new Place();
+                                Place.Name = pl;
+                                Place.Priority = pr;
+                                lKeeper.Items.Add(Place);
+                            }
+                        }
+                    }
+                }
+
+                
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show("Nie znaleziono akrusza \"Lista maszyn\". Nie zaktualizowano żadnej maszyny.. ");
+
+                MessageBox.Show("Aktualizacja maszyn zakończona niepowodzeniem, ponieważ nie udało się odczytać rankingu.","Niepowodzenie",MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
-            
-
-
+            return lKeeper;
         }
     }
 }
