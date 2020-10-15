@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace JdeScanExcelAddIn.Models
                     }
                     catch (Exception ex)
                     {
+                        
                         MessageBox.Show("Nie udało się nawiązać połączenia z bazą danych.. " + ex.Message);
                     }
 

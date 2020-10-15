@@ -1,4 +1,5 @@
 ﻿using JdeScanExcelAddIn.Static;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -11,6 +12,8 @@ namespace JdeScanExcelAddIn.Models
 {
     public class PlaceKeeper : Keeper<Place>
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         public void Reload()
         {
             string sql = "SELECT PlaceId, Name, IsArchived, Priority FROM JDE_Places";
@@ -31,6 +34,7 @@ namespace JdeScanExcelAddIn.Models
 
         public async Task<string> UpdatePriority()
         {
+            Logger.Info("UpdatePriority has started.");
             List<Task<string>> UpdateTasks = new List<Task<string>>();
 
             try
@@ -57,14 +61,16 @@ namespace JdeScanExcelAddIn.Models
                     }
                     if (string.IsNullOrWhiteSpace(response))
                         response = "OK";
-
+                    Logger.Info("UpdatePriority has finished successfully.");
                     return response;
                 }
             }
             catch (Exception ex)
             {
+                Logger.Error("Error in UpdatePriority. Error={ex}", ex);
                 throw;
             }
+            Logger.Info("UpdatePriority has finished unsuccessfully (no place updated)");
             return "Nie udało się zaktualizować danych żadnego zasobu..";
         }
 

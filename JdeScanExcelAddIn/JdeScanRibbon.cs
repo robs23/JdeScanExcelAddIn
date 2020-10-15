@@ -20,7 +20,7 @@ namespace JdeScanExcelAddIn
 
         private void JdeScanRibbon_Load(object sender, RibbonUIEventArgs e)
         {
-            
+            Static.Functions.ConfigNLog3();
         }
 
         private void btnJdeScanExport_Click(object sender, RibbonControlEventArgs e)
