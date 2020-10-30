@@ -20,7 +20,7 @@ namespace JdeScanExcelAddIn
 
         private void JdeScanRibbon_Load(object sender, RibbonUIEventArgs e)
         {
-            Static.Functions.ConfigNLog3();
+            //Static.Functions.ConfigNLog3();
         }
 
         private void btnJdeScanExport_Click(object sender, RibbonControlEventArgs e)
@@ -323,6 +323,8 @@ namespace JdeScanExcelAddIn
             DialogResult res = MessageBox.Show($"Znaleziono {num} pasujących maszyn. Czy chcesz zaktualizować priorytet maszyny danymi z pliku?", "Potwierdź", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if(res == DialogResult.Yes)
             {
+                frmLooper Looper = new frmLooper();
+                Looper.Show();
                 await pKeeper.UpdatePriority();
                 int updated = pKeeper.Items.Count(i => i.IsUpdated == false);
                 if (updated > 0)
@@ -334,7 +336,9 @@ namespace JdeScanExcelAddIn
                 {
                     MessageBox.Show($"Niezaktualizowano żadnej maszyny, ponieważ żadna z maszyn w pliku nie została odnaleziona w bazie. Możliwe, że trzeba będzie założyć brakujące maszyny..", "Brak nowych danych", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                Looper.Hide();
             }
+            
 
             
         }

@@ -30,11 +30,11 @@
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>K:\Common\JDE Scan\Excel Add-in\Releases\</PublishUrl>
-    <InstallUrl />
+    <PublishUrl>\\corp.demb.com\DFS\opcos\1356\Common\JDE Scan\Excel Add-in\Releases\</PublishUrl>
+    <InstallUrl>\\corp.demb.com\DFS\opcos\1356\Common\JDE Scan\Excel Add-in\Releases\</InstallUrl>
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.2.0.0</ApplicationVersion>
-    <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
+    <ApplicationVersion>1.2.1.0</ApplicationVersion>
+    <AutoIncrementApplicationRevision>false</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
@@ -193,6 +193,12 @@
     <Compile Include="frmLogin.Designer.cs">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmLooper.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLooper.Designer.cs">
+      <DependentUpon>frmLooper.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmPeriod.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -225,6 +231,9 @@
     <EmbeddedResource Include="frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="frmLooper.resx">
+      <DependentUpon>frmLooper.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmPeriod.resx">
       <DependentUpon>frmPeriod.cs</DependentUpon>
     </EmbeddedResource>
@@ -241,6 +250,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="JdeScanExcelAddIn_1_TemporaryKey.pfx" />
     <None Include="JdeScanExcelAddIn_TemporaryKey.pfx" />
     <None Include="NLog.config" />
     <None Include="NLog.xsd">
@@ -282,10 +292,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>JdeScanExcelAddIn_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>JdeScanExcelAddIn_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>1B668D350D27D619DBE097014D97D787D7DC75AC</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>CB7CFE7EC42770643719D7DFCAF59A44C05746B4</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
