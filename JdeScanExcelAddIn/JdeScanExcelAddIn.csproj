@@ -187,6 +187,12 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="frmActionTypes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmActionTypes.Designer.cs">
+      <DependentUpon>frmActionTypes.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmLogin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -213,6 +219,8 @@
     </Compile>
     <Compile Include="Models\Action.cs" />
     <Compile Include="Models\ActionKeeper.cs" />
+    <Compile Include="Models\ActionType.cs" />
+    <Compile Include="Models\ActionTypeKeeper.cs" />
     <Compile Include="Models\Entity.cs" />
     <Compile Include="Models\Keeper.cs" />
     <Compile Include="Models\Place.cs" />
@@ -228,6 +236,9 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <EmbeddedResource Include="frmActionTypes.resx">
+      <DependentUpon>frmActionTypes.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
     </EmbeddedResource>

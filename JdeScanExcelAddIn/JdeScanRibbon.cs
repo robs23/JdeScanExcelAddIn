@@ -30,6 +30,7 @@ namespace JdeScanExcelAddIn
             PlaceKeeper pKeeper = new PlaceKeeper();
             ActionKeeper aKeeper = new ActionKeeper();
             RecordKeeper rKeeper = new RecordKeeper();
+            ActionTypeKeeper atKeeper = new ActionTypeKeeper();
 
             mPlaces.Clear();
             aPlaces.Clear();
@@ -93,6 +94,7 @@ namespace JdeScanExcelAddIn
                     uKeeper.Reload();
                     aKeeper.Reload();
                     pKeeper.Reload();
+                    atKeeper.Reload();
 
                     foreach (Range Row in UsedRange.Rows)
                     {
