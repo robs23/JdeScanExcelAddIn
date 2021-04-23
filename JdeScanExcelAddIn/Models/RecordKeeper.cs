@@ -15,11 +15,13 @@ namespace JdeScanExcelAddIn.Models
         public int RowsAdded { get; set; } = 0;
         public DateTime PlannedStart { get; set; }
         public DateTime PlannedFinish { get; set; }
+        public ActionType ActionType { get; set; }
 
-        public RecordKeeper()
+        public RecordKeeper(ActionType actionType)
         {
             Processes = new List<Process>();
             Actions = new List<Action>();
+            ActionType = actionType;
         }
 
         public int ImportAll()
@@ -42,11 +44,12 @@ namespace JdeScanExcelAddIn.Models
             //add missing actions first
             try
             {
-                foreach (Record r in Items.Where(i => i.Action.ActionId == 0))
+                foreach (Record r in Items.Where(i => i.Action.ActionId == 0 && i.IsValid == true))
                 {
-                    if(!Actions.Where(i=>i.Name.ToLower().Trim() == r.Action.Name.ToLower().Trim()).Any())
+                    if(!Actions.Where(i=>i.Name.ToLower().Trim() == r.Action.Name.ToLower().Trim() && i.ActionTypeId == r.ActionType.ActionTypeId).Any())
                     {
-                        if (r.Action.Add())
+                        //check if action of such name and ActionTypeId exists before adding new one
+                        if (r.Action.Add(r.ActionType))
                         {
                             rCount++;
                         }
@@ -59,7 +62,8 @@ namespace JdeScanExcelAddIn.Models
                     }
                     else
                     {
-                        r.Action.ActionId = Actions.Where(i => i.Name.ToLower().Trim() == r.Action.Name.ToLower().Trim()).FirstOrDefault().ActionId;
+                        //since the action exists, take it from keeper
+                        r.Action.ActionId = Actions.Where(i => i.Name.ToLower().Trim() == r.Action.Name.ToLower().Trim() && i.ActionTypeId == r.ActionType.ActionTypeId).FirstOrDefault().ActionId;
                     }
                 }
             }
@@ -76,11 +80,12 @@ namespace JdeScanExcelAddIn.Models
         {
             bool existent = false;
 
-            string vSql = "SELECT ProcessId FROM JDE_Processes WHERE PlannedStart = @PlannedStart AND PlannedFinish=@PlannedFinish AND IsActive=0 AND IsFrozen=0 AND IsCompleted=0";
+            string vSql = "SELECT ProcessId FROM JDE_Processes WHERE PlannedStart = @PlannedStart AND PlannedFinish=@PlannedFinish AND IsActive=0 AND IsFrozen=0 AND IsCompleted=0 AND ActionTypeId=@ActionTypeId";
             using (SqlCommand command = new SqlCommand(vSql, Settings.conn))
             {
                 command.Parameters.AddWithValue("@PlannedStart", PlannedStart);
                 command.Parameters.AddWithValue("@PlannedFinish", PlannedFinish);
+                command.Parameters.AddWithValue("@ActionTypeId", ActionType.ActionTypeId);
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     if (reader.HasRows)
@@ -92,7 +97,7 @@ namespace JdeScanExcelAddIn.Models
 
             if (existent)
             {
-                DialogResult userChoice = MessageBox.Show("Jeśli w wybranym okresie istnieją już planowane i nierozpoczęte zgłoszenia, czy chcesz je usunąć?", "Istniejące zgłoszenia", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult userChoice = MessageBox.Show("Jeśli w wybranym okresie istnieją już planowane i nierozpoczęte zgłoszenia tego typu, czy chcesz je usunąć?", "Istniejące zgłoszenia", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (userChoice == DialogResult.Yes)
                 {
                     //Delete planned processes' planned actions
@@ -104,6 +109,7 @@ namespace JdeScanExcelAddIn.Models
                     {
                         command.Parameters.AddWithValue("@PlannedStart", PlannedStart);
                         command.Parameters.AddWithValue("@PlannedFinish", PlannedFinish);
+                        command.Parameters.AddWithValue("@ActionTypeId", ActionType.ActionTypeId);
                         command.ExecuteNonQuery();
                     }
 
@@ -116,18 +122,20 @@ namespace JdeScanExcelAddIn.Models
                     {
                         command.Parameters.AddWithValue("@PlannedStart", PlannedStart);
                         command.Parameters.AddWithValue("@PlannedFinish", PlannedFinish);
+                        command.Parameters.AddWithValue("@ActionTypeId", ActionType.ActionTypeId);
                         command.ExecuteNonQuery();
                     }
 
                     //Delete planned processes in the same period
                     sql = @"DELETE 
                         FROM JDE_Processes
-                        WHERE PlannedStart = @PlannedStart AND PlannedFinish=@PlannedFinish AND IsActive=0 AND IsFrozen=0 AND IsCompleted=0";
+                        WHERE PlannedStart = @PlannedStart AND PlannedFinish=@PlannedFinish AND IsActive=0 AND IsFrozen=0 AND IsCompleted=0 AND ActionTypeId=@ActionTypeId";
 
                     using (SqlCommand command = new SqlCommand(sql, Settings.conn))
                     {
                         command.Parameters.AddWithValue("@PlannedStart", PlannedStart);
                         command.Parameters.AddWithValue("@PlannedFinish", PlannedFinish);
+                        command.Parameters.AddWithValue("@ActionTypeId", ActionType.ActionTypeId);
                         command.ExecuteNonQuery();
                     }
                 }
@@ -145,7 +153,7 @@ namespace JdeScanExcelAddIn.Models
                 if (!Processes.Where(i => i.Place.PlaceId == r.Place.PlaceId).Any())
                 {
                     //we don't have this Place yet
-                    Process p = new Process { Place = r.Place, PlannedStart = PlannedStart, PlannedFinish = PlannedFinish };
+                    Process p = new Process { Place = r.Place, PlannedStart = PlannedStart, PlannedFinish = PlannedFinish, ActionTypeId = ActionType.ActionTypeId };
                     if (p.Add())
                     {
                         res++;

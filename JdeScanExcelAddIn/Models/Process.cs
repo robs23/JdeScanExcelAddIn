@@ -21,6 +21,7 @@ namespace JdeScanExcelAddIn.Models
         public Place Place { get; set; }
         public DateTime? PlannedStart { get; set; }
         public DateTime? PlannedFinish { get; set; }
+        public int ActionTypeId { get; set; }
 
         public bool Add()
         {
@@ -30,7 +31,7 @@ namespace JdeScanExcelAddIn.Models
 
             using (SqlCommand command = new SqlCommand(iSql, Settings.conn))
             {
-                command.Parameters.AddWithValue("@ActionTypeId", 2);
+                command.Parameters.AddWithValue("@ActionTypeId", ActionTypeId);
                 command.Parameters.AddWithValue("@PlaceId", Place.PlaceId);
                 command.Parameters.AddWithValue("@CreatedBy", Settings.CurrentUser.UserId);
                 command.Parameters.AddWithValue("@CreatedOn", DateTime.Now);

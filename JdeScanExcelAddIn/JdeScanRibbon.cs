@@ -30,7 +30,6 @@ namespace JdeScanExcelAddIn
             UsersKeeper uKeeper = new UsersKeeper();
             PlaceKeeper pKeeper = new PlaceKeeper();
             ActionKeeper aKeeper = new ActionKeeper();
-            RecordKeeper rKeeper = new RecordKeeper();
             ActionTypeKeeper atKeeper = new ActionTypeKeeper();
             ActionType ChosenActionType = null;
 
@@ -135,10 +134,12 @@ namespace JdeScanExcelAddIn
 
                     if (ChosenActionType != null)
                     {
+                        RecordKeeper rKeeper = new RecordKeeper(ChosenActionType);
                         foreach (Range Row in UsedRange.Rows)
                         {
                             Record record = new Record();
                             record.RowNumber = Row.Row;
+                            record.ActionType = ChosenActionType;
                             //get Users
                             string names = null;
                             if (((Range)UsedRange[Row.Row, cUser]).Value2 != null)

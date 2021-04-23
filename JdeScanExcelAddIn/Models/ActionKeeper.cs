@@ -9,13 +9,6 @@ namespace JdeScanExcelAddIn.Models
 {
     public class ActionKeeper : Keeper<Action>
     {
-        public void SaveAll()
-        {
-            foreach (Action item in Items)
-            {
-                item.Add();
-            }
-        }
 
         public void Reload()
         {

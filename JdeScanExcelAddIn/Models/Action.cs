@@ -22,12 +22,13 @@ namespace JdeScanExcelAddIn.Models
         public string Name { get; set; }
         public Nullable<int> GivenTime { get; set; } = null;
         public string Type { get; set; }
+        public int ActionTypeId { get; set; }
 
-        public bool Add()
+        public bool Add(ActionType actionType)
         {
-            string iSql = @"INSERT INTO JDE_Actions (Name, CreatedBy, CreatedOn, TenantId, GivenTime, Type)
+            string iSql = @"INSERT INTO JDE_Actions (Name, CreatedBy, CreatedOn, TenantId, GivenTime, Type, ActionTypeId)
                             output INSERTED.ActionID 
-                            VALUES(@Name, @CreatedBy, @CreatedOn, @TenantId, @GivenTime, @Type)";
+                            VALUES(@Name, @CreatedBy, @CreatedOn, @TenantId, @GivenTime, @Type, @ActionTypeId)";
 
             using (SqlCommand command = new SqlCommand(iSql, Settings.conn))
             {
@@ -37,7 +38,7 @@ namespace JdeScanExcelAddIn.Models
                 command.Parameters.AddWithValue("@CreatedBy", Settings.CurrentUser.UserId);
                 command.Parameters.AddWithValue("@CreatedOn", DateTime.Now);
                 command.Parameters.AddWithValue("@TenantId", 1);
-
+                command.Parameters.AddWithValue("@ActionTypeId", actionType.ActionTypeId);
                 int result = -1;
                 try
                 {
