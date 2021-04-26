@@ -25,5 +25,6 @@ namespace JdeScanExcelAddIn.Models
         public bool? ClosePreviousInSamePlace { get; set; }
         public bool? PartsApplicable { get; set; }
         public bool? ActionsApplicable { get; set; }
+        public bool? RequireUsersAssignment { get; set; }
     }
 }

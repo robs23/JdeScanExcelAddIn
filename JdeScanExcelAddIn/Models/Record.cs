@@ -13,9 +13,19 @@ namespace JdeScanExcelAddIn.Models
         {
             get
             {
-                if(Users.Count == UsersAssigned && Place != null)
+                if(Place != null)
                 {
-                    return true;
+                    if (ActionType.RequireUsersAssignment!=true)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        if(Users.Count == UsersAssigned)
+                        {
+                            return true;
+                        }
+                    }
                 }
                 return false;
             }

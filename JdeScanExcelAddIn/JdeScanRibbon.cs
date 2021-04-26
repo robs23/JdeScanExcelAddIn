@@ -137,137 +137,141 @@ namespace JdeScanExcelAddIn
                         RecordKeeper rKeeper = new RecordKeeper(ChosenActionType);
                         foreach (Range Row in UsedRange.Rows)
                         {
-                            Record record = new Record();
-                            record.RowNumber = Row.Row;
-                            record.ActionType = ChosenActionType;
-                            //get Users
-                            string names = null;
-                            if (((Range)UsedRange[Row.Row, cUser]).Value2 != null)
-                                names = ((Range)UsedRange[Row.Row, cUser]).Value;
-                            string act = null;
-                            if (((Range)UsedRange[Row.Row, cAction]).Value2 != null)
-                                act = ((Range)UsedRange[Row.Row, cAction]).Value.ToString().Trim();
-                            string pl = null;
-                            if (((Range)UsedRange[Row.Row, cPlace]).Value2 != null)
-                                pl = ((Range)UsedRange[Row.Row, cPlace]).Value.ToString().Trim();
-                            if (!string.IsNullOrEmpty(names) && names != "Nazwisko" && !string.IsNullOrEmpty(act) && act != "Czynność" && !string.IsNullOrEmpty(pl) && pl != "Nazwa maszyny")
+                            if (!Row.Hidden)
                             {
-                                //Process only rows having any user assigned
-                                //Don't do anything if the row doesn't contain Place and action
-                                //They are indispensable
-
-                                var nms = Regex.Split(names, ",");
-                                if (nms.Count() == 1)
+                                //ignore hidden rows
+                                Record record = new Record();
+                                record.RowNumber = Row.Row;
+                                record.ActionType = ChosenActionType;
+                                //get Users
+                                string names = null;
+                                if (((Range)UsedRange[Row.Row, cUser]).Value2 != null)
+                                    names = ((Range)UsedRange[Row.Row, cUser]).Value;
+                                string act = null;
+                                if (((Range)UsedRange[Row.Row, cAction]).Value2 != null)
+                                    act = ((Range)UsedRange[Row.Row, cAction]).Value.ToString().Trim();
+                                string pl = null;
+                                if (((Range)UsedRange[Row.Row, cPlace]).Value2 != null)
+                                    pl = ((Range)UsedRange[Row.Row, cPlace]).Value.ToString().Trim();
+                                if (!string.IsNullOrEmpty(names) && names != "Nazwisko" && !string.IsNullOrEmpty(act) && act != "Czynność" && !string.IsNullOrEmpty(pl) && pl != "Nazwa maszyny")
                                 {
-                                    //Only 1 user? Or maybe those bustards are divided with "/" ?!
-                                    nms = Regex.Split(names, "/");
+                                    //Process only rows having any user assigned
+                                    //Don't do anything if the row doesn't contain Place and action
+                                    //They are indispensable
+
+                                    var nms = Regex.Split(names, ",");
                                     if (nms.Count() == 1)
                                     {
-                                        //Only 1 user? maybe backslash ("\") ?!
-                                        if (names.Contains(@"\"))
+                                        //Only 1 user? Or maybe those bustards are divided with "/" ?!
+                                        nms = Regex.Split(names, "/");
+                                        if (nms.Count() == 1)
                                         {
-                                            nms = names.Split('\\');
+                                            //Only 1 user? maybe backslash ("\") ?!
+                                            if (names.Contains(@"\"))
+                                            {
+                                                nms = names.Split('\\');
+                                            }
                                         }
                                     }
-                                }
-                                record.UsersAssigned = nms.Count();
-                                foreach (string n in nms)
-                                {
-                                    if (uKeeper.Items.Where(i => i.FullName == n.Trim()).Any())
+                                    record.UsersAssigned = nms.Count();
+                                    foreach (string n in nms)
                                     {
-                                        if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived == true).Any() && !uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).Any())
+                                        if (uKeeper.Items.Where(i => i.FullName == n.Trim()).Any())
                                         {
-                                            //check if there is archived user like that but also check if there is active user like this
-                                            //add it to archived list
-                                            aUsers.Add(n.Trim());
+                                            if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived == true).Any() && !uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).Any())
+                                            {
+                                                //check if there is archived user like that but also check if there is active user like this
+                                                //add it to archived list
+                                                aUsers.Add(n.Trim());
+                                            }
+                                            else
+                                            {
+                                                //Keep User with id in record object
+                                                record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).FirstOrDefault().UserId, FullName = n.Trim() });
+                                            }
                                         }
                                         else
                                         {
-                                            //Keep User with id in record object
-                                            record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).FirstOrDefault().UserId, FullName = n.Trim() });
+                                            if (!mUsers.Where(i => i == n.Trim()).Any())
+                                            {
+                                                //add it to missing list
+                                                mUsers.Add(n.Trim());
+                                            }
+                                        }
+                                    }
+
+                                    if (pKeeper.Items.Where(i => i.Name.Trim() == pl).Any())
+                                    {
+                                        //Keep place with id in record object
+                                        if (pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived == true).Any() && !pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived != true).Any())
+                                        {
+                                            //check if there is archived place like that but also check if there is active place like this
+                                            //add it to archived list
+                                            aPlaces.Add(pl);
+                                        }
+                                        else
+                                        {
+                                            record.Place = pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived != true).FirstOrDefault();
                                         }
                                     }
                                     else
                                     {
-                                        if (!mUsers.Where(i => i == n.Trim()).Any())
+                                        if (!mPlaces.Where(i => i == pl).Any())
                                         {
                                             //add it to missing list
-                                            mUsers.Add(n.Trim());
+                                            mPlaces.Add(pl);
                                         }
                                     }
-                                }
 
-                                if (pKeeper.Items.Where(i => i.Name.Trim() == pl).Any())
-                                {
-                                    //Keep place with id in record object
-                                    if (pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived == true).Any() && !pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived != true).Any())
+
+                                    //get Actions
+                                    Models.Action a = new Models.Action();
+
+                                    if (!aKeeper.Items.Where(i => i.Name.Trim().Equals(act, StringComparison.OrdinalIgnoreCase)).Any())
                                     {
-                                        //check if there is archived place like that but also check if there is active place like this
-                                        //add it to archived list
-                                        aPlaces.Add(pl);
+                                        //Go and add missing actions to db
+                                        //it doesn't exist, let's add it
+                                        a.Name = act;
+                                        bool passed = false;
+                                        int min = 0;
+                                        string tg = null;
+                                        try
+                                        {
+                                            if (((Range)UsedRange[Row.Row, cTime]).Value2 != null)
+                                            {
+                                                tg = ((Range)UsedRange[Row.Row, cTime]).Value.ToString();
+                                                passed = int.TryParse(tg, out min);
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show(ex.Message);
+                                        }
+                                        if (passed)
+                                            a.GivenTime = min;
+
+                                        if (((Range)UsedRange[Row.Row, cType]).Value2 != null)
+                                            a.Type = ((Range)UsedRange[Row.Row, cType]).Value.ToString().Trim();
+
                                     }
                                     else
                                     {
-                                        record.Place = pKeeper.Items.Where(i => i.Name.Trim() == pl && i.IsArchived != true).FirstOrDefault();
+                                        a = aKeeper.Items.Where(i => i.Name.Trim().Equals(act, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
                                     }
+
+                                    record.Action = a;
+                                    rKeeper.Items.Add(record);
+                                }
+
+                                if (!record.IsValid)
+                                {
+                                    // mark it
+                                    Row.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
                                 }
                                 else
                                 {
-                                    if (!mPlaces.Where(i => i == pl).Any())
-                                    {
-                                        //add it to missing list
-                                        mPlaces.Add(pl);
-                                    }
-                                }
-
-
-                                //get Actions
-                                Models.Action a = new Models.Action();
-
-                                if (!aKeeper.Items.Where(i => i.Name.Trim().Equals(act, StringComparison.OrdinalIgnoreCase)).Any())
-                                {
-                                    //Go and add missing actions to db
-                                    //it doesn't exist, let's add it
-                                    a.Name = act;
-                                    bool passed = false;
-                                    int min = 0;
-                                    string tg = null;
-                                    try
-                                    {
-                                        if (((Range)UsedRange[Row.Row, cTime]).Value2 != null)
-                                        {
-                                            tg = ((Range)UsedRange[Row.Row, cTime]).Value.ToString();
-                                            passed = int.TryParse(tg, out min);
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        MessageBox.Show(ex.Message);
-                                    }
-                                    if (passed)
-                                        a.GivenTime = min;
-
-                                    if (((Range)UsedRange[Row.Row, cType]).Value2 != null)
-                                        a.Type = ((Range)UsedRange[Row.Row, cType]).Value.ToString().Trim();
-
-                                }
-                                else
-                                {
-                                    a = aKeeper.Items.Where(i => i.Name.Trim().Equals(act, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                                }
-
-                                record.Action = a;
-                                rKeeper.Items.Add(record);
-                            }
-
-                            if (!record.IsValid)
-                            {
-                                // mark it
-                                Row.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
-                            }
-                            else
-                            {
-                                Row.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
+                                    Row.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
+                                } 
                             }
 
                         }
@@ -277,10 +281,23 @@ namespace JdeScanExcelAddIn
 
                         if (rKeeper.Items.Where(r => r.IsValid == false).Any())
                         {
-                            IsValid = false;
-                            //if at least one record contains invalid data, notify him
-                            //and check if he would like to add valid records or correct it first
-                            string mess = "Nie wszystkie rekordy można dodać. Jeśli w wierszu nazwa maszyny (lub nazwisko pracownika) nie występuje w programie, takiego wiersza nie można dodać. Aby dodać niepoprawne wiersze (zaznaczone na czerwono), należy najpierw utworzyć odpowiednią maszynę/użytkownika w programie, lub skorygować dane w pliku.";
+                            
+                            string mess = string.Empty;
+
+                            if (rKeeper.Items.Where(r => r.IsValid == true).Any())
+                            {
+                                IsValid = true;
+                                //if at least one record contains valid data, notify him
+                                //and check if he would like to add valid records or correct it first
+                                mess = "Nie wszystkie rekordy można dodać. Jeśli w wierszu nazwa maszyny (lub nazwisko pracownika) nie występuje w programie, takiego wiersza nie można dodać. Aby dodać niepoprawne wiersze (zaznaczone na czerwono), należy najpierw utworzyć odpowiednią maszynę/użytkownika w programie, lub skorygować dane w pliku.";
+                            }
+                            else
+                            {
+                                IsValid = false;
+                                //no records contain valid data
+                                mess = "Arkusz nie zawiera żadnego poprawnego wiersza. Jeśli w wierszu nazwa maszyny (lub nazwisko pracownika) nie występuje w programie, takiego wiersza nie można dodać. Aby dodać niepoprawne wiersze (zaznaczone na czerwono), należy najpierw utworzyć odpowiednią maszynę/użytkownika w programie, lub skorygować dane w pliku.";
+                            }
+                                
                             if (mUsers.Any())
                                 mess += Environment.NewLine + Environment.NewLine + "Brakujący użytkownicy: " + string.Join(", ", mUsers);
                             if (mPlaces.Any())
@@ -294,12 +311,24 @@ namespace JdeScanExcelAddIn
                                     mess += Environment.NewLine + "Zarchiwizowani użytkownicy: " + string.Join(", ", aUsers.Distinct());
                             }
 
-                            mess += Environment.NewLine + Environment.NewLine + "Chcesz importować teraz poprawne wiersze (ZIELONE)?";
-                            DialogResult res = MessageBox.Show(mess, "Niepoprawne dane", MessageBoxButtons.YesNo);
-                            if (res == DialogResult.Yes)
+                            if (IsValid)
                             {
-                                IsValid = true;
+                                mess += Environment.NewLine + Environment.NewLine + "Chcesz importować teraz poprawne wiersze (ZIELONE)?";
+                                DialogResult res = MessageBox.Show(mess, "Niepoprawne dane", MessageBoxButtons.YesNo);
+                                if (res == DialogResult.Yes)
+                                {
+                                    IsValid = true;
+                                }
+                                else
+                                {
+                                    IsValid = false;
+                                }
                             }
+                            else
+                            {
+                                DialogResult res = MessageBox.Show(mess, "Niepoprawne dane", MessageBoxButtons.OK);
+                            }
+                            
                         }
 
                         if (IsValid)
