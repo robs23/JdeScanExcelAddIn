@@ -17,11 +17,14 @@ namespace JdeScanExcelAddIn.Models
                 {
                     if (ActionType.RequireUsersAssignment!=true)
                     {
-                        return true;
+                        if (UsersAssigned == 0 || Users.Count == UsersAssigned)
+                        {
+                            return true;
+                        }                    
                     }
                     else
                     {
-                        if(Users.Count == UsersAssigned)
+                        if(Users.Count == UsersAssigned && Users.Count > 0)
                         {
                             return true;
                         }

@@ -17,7 +17,6 @@ namespace JdeScanExcelAddIn
         List<string> mPlaces = new List<string>();
         List<string> aUsers = new List<string>();
         List<string> aPlaces = new List<string>();
-        bool SelectionBased = false;
 
         private void JdeScanRibbon_Load(object sender, RibbonUIEventArgs e)
         {
@@ -40,27 +39,7 @@ namespace JdeScanExcelAddIn
             
             Workbook wb = Globals.ThisAddIn.Application.ActiveWorkbook;
             Worksheet sht = wb.ActiveSheet;
-            Range UsedRange=null;
-            try
-            {
-                //check if there is some range selected
-                //and use it in this case
-                //in such case, actions don't have to have user assigned
-                Range selectedRange = (Range)Globals.ThisAddIn.Application.Selection;
-                if(selectedRange.Count > 1)
-                {
-                    SelectionBased = true;
-                    UsedRange = selectedRange;
-                }
-                
-            }catch(Exception ex)
-            {
-                MessageBox.Show("Błąd zaznaczenia");
-            }
-            if(UsedRange == null)
-            {
-                UsedRange = sht.UsedRange;
-            }
+            Range UsedRange=sht.UsedRange;
             
             bool found = false;
             int cUser = 0;
@@ -153,51 +132,53 @@ namespace JdeScanExcelAddIn
                                 string pl = null;
                                 if (((Range)UsedRange[Row.Row, cPlace]).Value2 != null)
                                     pl = ((Range)UsedRange[Row.Row, cPlace]).Value.ToString().Trim();
-                                if (!string.IsNullOrEmpty(names) && names != "Nazwisko" && !string.IsNullOrEmpty(act) && act != "Czynność" && !string.IsNullOrEmpty(pl) && pl != "Nazwa maszyny")
+                                if (names != "Nazwisko" && !string.IsNullOrEmpty(act) && act != "Czynność" && !string.IsNullOrEmpty(pl) && pl != "Nazwa maszyny")
                                 {
-                                    //Process only rows having any user assigned
                                     //Don't do anything if the row doesn't contain Place and action
                                     //They are indispensable
 
-                                    var nms = Regex.Split(names, ",");
-                                    if (nms.Count() == 1)
+                                    if (!string.IsNullOrEmpty(names))
                                     {
-                                        //Only 1 user? Or maybe those bustards are divided with "/" ?!
-                                        nms = Regex.Split(names, "/");
+                                        var nms = Regex.Split(names, ",");
                                         if (nms.Count() == 1)
                                         {
-                                            //Only 1 user? maybe backslash ("\") ?!
-                                            if (names.Contains(@"\"))
+                                            //Only 1 user? Or maybe those bustards are divided with "/" ?!
+                                            nms = Regex.Split(names, "/");
+                                            if (nms.Count() == 1)
                                             {
-                                                nms = names.Split('\\');
+                                                //Only 1 user? maybe backslash ("\") ?!
+                                                if (names.Contains(@"\"))
+                                                {
+                                                    nms = names.Split('\\');
+                                                }
                                             }
                                         }
-                                    }
-                                    record.UsersAssigned = nms.Count();
-                                    foreach (string n in nms)
-                                    {
-                                        if (uKeeper.Items.Where(i => i.FullName == n.Trim()).Any())
+                                        record.UsersAssigned = nms.Count();
+                                        foreach (string n in nms)
                                         {
-                                            if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived == true).Any() && !uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).Any())
+                                            if (uKeeper.Items.Where(i => i.FullName == n.Trim()).Any())
                                             {
-                                                //check if there is archived user like that but also check if there is active user like this
-                                                //add it to archived list
-                                                aUsers.Add(n.Trim());
+                                                if (uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived == true).Any() && !uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).Any())
+                                                {
+                                                    //check if there is archived user like that but also check if there is active user like this
+                                                    //add it to archived list
+                                                    aUsers.Add(n.Trim());
+                                                }
+                                                else
+                                                {
+                                                    //Keep User with id in record object
+                                                    record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).FirstOrDefault().UserId, FullName = n.Trim() });
+                                                }
                                             }
                                             else
                                             {
-                                                //Keep User with id in record object
-                                                record.Users.Add(new User { UserId = uKeeper.Items.Where(i => i.FullName == n.Trim() && i.IsArchived != true).FirstOrDefault().UserId, FullName = n.Trim() });
+                                                if (!mUsers.Where(i => i == n.Trim()).Any())
+                                                {
+                                                    //add it to missing list
+                                                    mUsers.Add(n.Trim());
+                                                }
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (!mUsers.Where(i => i == n.Trim()).Any())
-                                            {
-                                                //add it to missing list
-                                                mUsers.Add(n.Trim());
-                                            }
-                                        }
+                                        } 
                                     }
 
                                     if (pKeeper.Items.Where(i => i.Name.Trim() == pl).Any())

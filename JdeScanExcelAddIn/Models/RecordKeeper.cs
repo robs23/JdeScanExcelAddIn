@@ -247,25 +247,18 @@ namespace JdeScanExcelAddIn.Models
             string cStr = ""; //current item
             int counter = 1;
 
-            using (SqlCommand command = new SqlCommand(cSql, Settings.conn))
-            {
-                foreach (Record r in Items)
-                {
-                    //prepare insert string
-                    
-                    if (r.IsValid)
-                    {
-                        if (counter % 1000 == 0)
-                        {
-                            //we've just hit 1000 items
 
-                            rStr.Add(cStr);
-                            cStr = "";
-                        }
-                        foreach(User u in r.Users)
+            if (Items.Any(i => i.IsValid))
+            {
+                //don't do anything if there's no valid item
+                using (SqlCommand command = new SqlCommand(cSql, Settings.conn))
+                {
+                    foreach (Record r in Items)
+                    {
+                        //prepare insert string
+
+                        if (r.IsValid)
                         {
-                            counter++;
-                            cStr += $"({r.Process.ProcessId},{u.UserId}),";
                             if (counter % 1000 == 0)
                             {
                                 //we've just hit 1000 items
@@ -273,46 +266,58 @@ namespace JdeScanExcelAddIn.Models
                                 rStr.Add(cStr);
                                 cStr = "";
                             }
+                            foreach (User u in r.Users)
+                            {
+                                counter++;
+                                cStr += $"({r.Process.ProcessId},{u.UserId}),";
+                                if (counter % 1000 == 0)
+                                {
+                                    //we've just hit 1000 items
+
+                                    rStr.Add(cStr);
+                                    cStr = "";
+                                }
+                            }
+
                         }
-                        
                     }
-                }
-                //non-full item set must be added here... otherwise it won't be added
-                if (!string.IsNullOrEmpty(cStr))
-                    rStr.Add(cStr);
+                    //non-full item set must be added here... otherwise it won't be added
+                    if (!string.IsNullOrEmpty(cStr))
+                        rStr.Add(cStr);
 
-                if (rStr.Any())
-                {
-
-                    for (int i = 0; i < rStr.Count; i++)
+                    if (rStr.Any())
                     {
-                        rStr[i] = rStr[i].Substring(0, rStr[i].Length - 1); //drop the last ","
-                    }
 
-                }
-
-                command.ExecuteNonQuery();
-
-                if (rStr.Any())
-                {
-                    foreach (string s in rStr)
-                    {
-                        //do this for each 1000 items
-                        string iSql = "INSERT INTO #ProcessAssigns(ProcessId, UserId) VALUES " + s;
-                        using (SqlCommand iCommand = new SqlCommand(iSql, Settings.conn))
+                        for (int i = 0; i < rStr.Count; i++)
                         {
-                            iCommand.ExecuteNonQuery();
+                            rStr[i] = rStr[i].Substring(0, rStr[i].Length - 1); //drop the last ","
                         }
+
                     }
 
-                    //once everything is uploaded to #ProcessAssigns, differentiate it with JDE_ProcessAssigns and add new items only
-                    string sSql = $"SELECT DISTINCT ProcessId, UserId, {Settings.CurrentUser.UserId} as CreatedBy, GETDATE() as CreatedOn, 1 as TenantId FROM #ProcessAssigns tpa WHERE NOT EXISTS (SELECT * FROM JDE_ProcessAssigns pa WHERE pa.ProcessId=tpa.ProcessId AND pa.UserId=tpa.UserId)";
-                    string iiSql = "INSERT INTO JDE_ProcessAssigns (ProcessId, UserId, CreatedBy, CreatedOn, TenantId) " + sSql;
-                    using (SqlCommand iiCommand = new SqlCommand(iiSql, Settings.conn))
+                    command.ExecuteNonQuery();
+
+                    if (rStr.Any())
                     {
-                        res = iiCommand.ExecuteNonQuery();
+                        foreach (string s in rStr)
+                        {
+                            //do this for each 1000 items
+                            string iSql = "INSERT INTO #ProcessAssigns(ProcessId, UserId) VALUES " + s;
+                            using (SqlCommand iCommand = new SqlCommand(iSql, Settings.conn))
+                            {
+                                iCommand.ExecuteNonQuery();
+                            }
+                        }
+
+                        //once everything is uploaded to #ProcessAssigns, differentiate it with JDE_ProcessAssigns and add new items only
+                        string sSql = $"SELECT DISTINCT ProcessId, UserId, {Settings.CurrentUser.UserId} as CreatedBy, GETDATE() as CreatedOn, 1 as TenantId FROM #ProcessAssigns tpa WHERE NOT EXISTS (SELECT * FROM JDE_ProcessAssigns pa WHERE pa.ProcessId=tpa.ProcessId AND pa.UserId=tpa.UserId)";
+                        string iiSql = "INSERT INTO JDE_ProcessAssigns (ProcessId, UserId, CreatedBy, CreatedOn, TenantId) " + sSql;
+                        using (SqlCommand iiCommand = new SqlCommand(iiSql, Settings.conn))
+                        {
+                            res = iiCommand.ExecuteNonQuery();
+                        }
                     }
-                }
+                } 
             }
 
             return res;
